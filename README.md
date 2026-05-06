@@ -9,7 +9,7 @@ combining 5-minute streaming demand data with multi-year historical consumption
 data to predict load patterns and detect grid stress events.
 
 ## Architecture
-<img width="1503" height="503" alt="team08_591_architecture" src="https://github.com/user-attachments/assets/94871e2d-93fe-4fb2-8443-816e7f9f8501" />
+<img width="1503" height="649" alt="team08-591-architecture" src="https://github.com/user-attachments/assets/37453b8b-8905-4e7a-89ea-4351a70c362c" />
 
 ## Repository Structure
 - `ingestion/` — `stream_simulator.py`, `stream_processor.py`
