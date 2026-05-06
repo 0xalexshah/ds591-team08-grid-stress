@@ -1,17 +1,15 @@
-# Team 08 — Grid Stress Monitoring (ISO New England)
-**DS591/562 Engineering for Big Data Workloads — Boston University, Spring 2026**
+# Team 08: Grid Stress Monitoring, Demand, & Growth Modeling
+**DS591 Engineering for Big Data Workloads — Boston University, Spring 2026**
 
 Team: Alexander Shah, Aijia Zhang, Samantha Gibson, Jiaxi Li
 
 ## Project Overview
-Data engineering pipeline monitoring real-time grid stress in ISO New England,
+Data pipeline monitoring real-time grid stress in New England, using ISO-NE & EIA data, 
 combining 5-minute streaming demand data with multi-year historical consumption
 data to predict load patterns and detect grid stress events.
 
 ## Architecture
-Bronze (raw ingestion) → Silver (cleaned + transformed) → Gold (feature matrix for modeling)
-- **Batch:** Azure Data Factory pipelines ingesting ISO-NE historical + EIA data
-- **Streaming:** Python simulator replaying ISO-NE 5-min demand CSVs at real cadence
+<img width="1503" height="503" alt="team08_591_architecture" src="https://github.com/user-attachments/assets/94871e2d-93fe-4fb2-8443-816e7f9f8501" />
 
 ## Repository Structure
 - `ingestion/` — `stream_simulator.py`, `stream_processor.py`
@@ -36,9 +34,3 @@ python ingestion/stream_processor.py --once
 # Process Bronze → Silver (poll continuously every 60s)
 python ingestion/stream_processor.py
 ```
-
-## Milestones
-- ✅ Milestone 1: Architecture & proposal
-- ✅ Milestone 2: ADF batch ingestion pipelines
-- ✅ Milestone 3: Streaming simulation + stream processing + EDA
-- 🔄 Milestone 4: Gold layer, modeling, dashboard, final report
