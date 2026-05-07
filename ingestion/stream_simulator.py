@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pandas as pd
 from azure.storage.filedatalake import DataLakeServiceClient
+from azure.eventhub import EventHubProducerClient, EventData
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -149,6 +150,20 @@ def emit_row(client: DataLakeServiceClient, row: dict) -> str:
 
     return full_path
 
+def emit_to_eventhub(payload: dict) -> None:
+    """Send event to Azure Event Hub for Stream Analytics."""
+    conn_str = os.environ.get("EVENTHUB_CONNECTION_STRING")
+    eh_name  = os.environ.get("EVENTHUB_NAME")
+    if not conn_str or not eh_name:
+        return
+    producer = EventHubProducerClient.from_connection_string(
+        conn_str=conn_str,
+        eventhub_name=eh_name
+    )
+    with producer:
+        batch = producer.create_batch()
+        batch.add(EventData(json.dumps(payload)))
+        producer.send_batch(batch)
 
 # ---------- Main replay loop ----------
 def replay(df: pd.DataFrame, max_rows: int, dry_run: bool, fast: bool = False):
@@ -167,6 +182,16 @@ def replay(df: pd.DataFrame, max_rows: int, dry_run: bool, fast: bool = False):
             path = f"[dry-run] event_{row['event_time']}.json"
         else:
             path = emit_row(client, row)
+            # Send same payload to Event Hub
+            eh_payload = {
+                "event_time": row["event_time"].isoformat(),
+                "ingestion_time": datetime.now(timezone.utc).isoformat(),
+                "total_load_mw": None if pd.isna(row["total_load_mw"]) else float(row["total_load_mw"]),
+                "native_load_mw": None if pd.isna(row["native_load_mw"]) else float(row["native_load_mw"]),
+                "asset_related_load_mw": None if pd.isna(row["asset_related_load_mw"]) else float(row["asset_related_load_mw"]),
+                "total_load_w_solar_mw": None if pd.isna(row["total_load_w_solar_mw"]) else float(row["total_load_w_solar_mw"]),
+            }
+            emit_to_eventhub(eh_payload)
 
         print(f"[{i}/{len(rows_to_emit)}] event={row['event_time']}  "
               f"load={row['total_load_mw']} MW  →  {path}")
